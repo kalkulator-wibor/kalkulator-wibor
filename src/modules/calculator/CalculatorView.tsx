@@ -1,3 +1,4 @@
+import { Search, FileText, ArrowRight } from 'lucide-react';
 import { useCases, useResult, useWiborSource } from '../../core/CaseContext';
 import { tabModules } from '../../modules';
 import LoanForm from '../../core-ui/LoanForm';
@@ -14,10 +15,10 @@ function WiborSourceBadge() {
   return (
     <button onClick={() => openSheetModule('wiborData')}
       className="mt-4 w-full text-left cursor-pointer group">
-      <div className="px-1 py-3 border-t border-base-300">
+      <div className="px-3 py-3 bg-warning/10 rounded-lg">
         <div className="flex items-baseline justify-between">
-          <p className="label-caps !opacity-30 group-hover:!opacity-60 transition-opacity">Dane WIBOR</p>
-          <p className="text-[0.6875rem] opacity-30 group-hover:opacity-60 transition-opacity tabular-nums">{wiborData.length} wpisów · {range}</p>
+          <p className="label-caps !opacity-40 group-hover:!opacity-60 transition-opacity">Dane WIBOR</p>
+          <p className="text-[0.6875rem] opacity-40 group-hover:opacity-60 transition-opacity tabular-nums">{wiborData.length} wpisów · {range}</p>
         </div>
         {isDefault && (
           <p className="text-[0.75rem] opacity-40 mt-1.5">
@@ -62,14 +63,14 @@ export default function CalculatorView() {
             {/* Hero — dominant element, golden ratio spacing */}
             <div className="pt-8 pb-10 px-2">
               <h2 className="display-tight leading-[1.1]">
-                Oblicz ile przepłacasz<br />na kredycie z&nbsp;WIBOR
+                Klauzule WIBOR<br />w&nbsp;Twoim kredycie
               </h2>
-              <div className="mt-6 flex flex-col gap-2.5 text-[0.9375rem] opacity-70 leading-relaxed">
-                <p>Porównaj ratę z WIBOR i bez WIBOR</p>
-                <p>Oblicz kwotę roszczenia do pozwu</p>
-                <p>Zobacz ile nadpłaciłeś od początku kredytu</p>
+              <div className="mt-6 flex flex-col gap-3 text-[0.9375rem] opacity-70 leading-relaxed">
+                <p className="flex items-center gap-3"><Search className="w-4 h-4 opacity-40 shrink-0" />System analizy klauzul WIBOR w&nbsp;umowach kredytowych</p>
+                <p className="flex items-center gap-3"><FileText className="w-4 h-4 opacity-40 shrink-0" />Przygotowanie dokumentacji procesowej</p>
+                <p className="flex items-center gap-3"><ArrowRight className="w-4 h-4 opacity-40 shrink-0" />Prowadzenie sprawy od wezwania przedsądowego do&nbsp;wyroku</p>
               </div>
-              <p className="label-caps mt-10">Wypełnij formularz aby zobaczyć wynik</p>
+              <p className="label-caps mt-10">Wypełnij formularz aby rozpocząć</p>
             </div>
 
             {/* Divider — thin, Swiss-style */}
@@ -92,25 +93,25 @@ export default function CalculatorView() {
             {/* Divider */}
             <div className="border-t border-base-300 mx-2" />
 
-            {/* Benefits — compact grid, Fibonacci scale */}
+            {/* Modules — compact grid, Fibonacci scale */}
             <div className="py-8 px-2">
-              <p className="label-caps mb-5">Co możesz zyskać</p>
+              <p className="label-caps mb-5">Moduły systemu</p>
               <div className="grid grid-cols-2 gap-x-8 gap-y-6">
                 <div>
-                  <p className="text-2xl font-bold tabular-nums tracking-tight">30–50%</p>
-                  <p className="text-[0.8125rem] opacity-50 mt-1">niższa rata kredytu</p>
+                  <p className="text-2xl font-bold tracking-tight">AI Bielik</p>
+                  <p className="text-[0.8125rem] opacity-50 mt-1">analiza umowy, predykcja szans, redakcja pism</p>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold tracking-tight">Zwrot</p>
-                  <p className="text-[0.8125rem] opacity-50 mt-1">nadpłaconych odsetek</p>
+                  <p className="text-2xl font-bold tracking-tight">Automat</p>
+                  <p className="text-[0.8125rem] opacity-50 mt-1">prowadzenie sprawy od wezwania do&nbsp;wyroku</p>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold tracking-tight">Niższe</p>
-                  <p className="text-[0.8125rem] opacity-50 mt-1">saldo zadłużenia</p>
+                  <p className="text-2xl font-bold tracking-tight">Pozew</p>
+                  <p className="text-[0.8125rem] opacity-50 mt-1">dane stron, WPS, opłata sądowa, dowody</p>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold tracking-tight">Stała rata</p>
-                  <p className="text-[0.8125rem] opacity-50 mt-1">przewidywalne koszty</p>
+                  <p className="text-2xl font-bold tracking-tight">Kalkulator</p>
+                  <p className="text-[0.8125rem] opacity-50 mt-1">nadpłacone odsetki, harmonogram, porównanie</p>
                 </div>
               </div>
             </div>
