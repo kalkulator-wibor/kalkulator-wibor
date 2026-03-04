@@ -1,10 +1,6 @@
-import type { CalculationResult } from '../utils/calculations';
-import { formatPLN } from '../utils/formatters';
-import { Panel } from './ui/Panel';
-
-interface Props {
-  result: CalculationResult;
-}
+import { formatPLN } from '../../utils/formatters';
+import { Panel } from '../../components/ui/Panel';
+import { useResult } from '../../core/CaseContext';
 
 function Row({ label, withWibor, withoutWibor, highlight }: { label: string; withWibor: number; withoutWibor: number; highlight?: boolean }) {
   const diff = withWibor - withoutWibor;
@@ -28,8 +24,11 @@ function SectionHeader({ children }: { children: string }) {
   );
 }
 
-export default function ComparisonView({ result }: Props) {
+export default function ComparisonView() {
+  const result = useResult();
+  if (!result) return null;
   const r = result;
+
   const rows: { section: string; items: { label: string; w: number; nw: number; hl?: boolean }[] }[] = [
     { section: 'Dotychczasowe spłaty', items: [
       { label: 'Wpłacono łącznie', w: r.pastTotalPaid, nw: r.pastTotalPaidNoWibor },

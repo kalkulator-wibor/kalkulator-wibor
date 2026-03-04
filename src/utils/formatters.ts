@@ -1,46 +1,36 @@
-/**
- * Formatuje kwotę w PLN
- */
+const plnFormatter = new Intl.NumberFormat('pl-PL', {
+  style: 'currency',
+  currency: 'PLN',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+const dateFormatter = new Intl.DateTimeFormat('pl-PL', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+});
+
 export function formatPLN(amount: number): string {
-  return new Intl.NumberFormat('pl-PL', {
-    style: 'currency',
-    currency: 'PLN',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
+  return plnFormatter.format(amount);
 }
 
-/**
- * Formatuje procent
- */
 export function formatPercent(value: number, decimals = 2): string {
   return `${value.toFixed(decimals)}%`;
 }
 
-/**
- * Formatuje datę w formacie DD.MM.YYYY
- */
 export function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat('pl-PL', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  }).format(date);
+  return dateFormatter.format(date);
 }
 
-/**
- * Oblicza liczbę dni między dwiema datami
- */
+export function toDateString(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 export function daysBetween(start: Date, end: Date): number {
   const msPerDay = 24 * 60 * 60 * 1000;
   return Math.round((end.getTime() - start.getTime()) / msPerDay);
-}
-
-/**
- * Dodaje miesiące do daty
- */
-export function addMonths(date: Date, months: number): Date {
-  const result = new Date(date);
-  result.setMonth(result.getMonth() + months);
-  return result;
 }

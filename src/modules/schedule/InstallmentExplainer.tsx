@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
-import type { InstallmentRow, LoanInput } from '../utils/calculations';
-import { generateExplanation } from '../utils/explanations';
-import { StepCard } from './ui/ExplanationCard';
+import type { InstallmentRow, LoanInput } from '../../utils/calculations';
+import { generateExplanation } from '../../utils/explanations';
+import { StepCard } from '../../components/ui/ExplanationCard';
+import { CalculationDisclaimer } from '../../components/ui/CalculationDisclaimer';
 
 interface Props {
   row: InstallmentRow;
@@ -17,6 +18,7 @@ export default function InstallmentExplainer({ row, schedule, input }: Props) {
 
   return (
     <div className="space-y-4">
+      <CalculationDisclaimer />
       <div className="text-sm text-gray-500">
         Rata nr <span className="font-bold text-gray-800">{explanation.installmentNumber}</span>
         {' '}z dnia <span className="font-bold text-gray-800">{explanation.date}</span>

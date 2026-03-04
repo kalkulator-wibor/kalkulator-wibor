@@ -1,37 +1,41 @@
 import { useState, useMemo } from 'react';
-import type { InstallmentRow, LoanInput } from '../utils/calculations';
-import { formatPLN, formatPercent, formatDate } from '../utils/formatters';
-import { Panel } from './ui/Panel';
-import { ToggleGroup } from './ui/ToggleGroup';
-import { Sheet } from './ui/Sheet';
+import type { InstallmentRow } from '../../utils/calculations';
+import { formatPLN, formatPercent, formatDate } from '../../utils/formatters';
+import { Panel } from '../../components/ui/Panel';
+import { InfoIcon } from '../../components/ui/Icons';
+import { ToggleGroup } from '../../components/ui/ToggleGroup';
+import { Sheet } from '../../components/ui/Sheet';
 import InstallmentExplainer from './InstallmentExplainer';
-
-interface Props {
-  schedule: InstallmentRow[];
-  input: LoanInput;
-}
+import { useResult, useInput } from '../../core/CaseContext';
+import { scheduleFilters } from './scheduleFilters';
 
 const PAGE_SIZE = 24;
 
-const filters = [
-  { id: 'all', label: 'Wszystkie', test: () => true },
-  { id: 'past', label: 'Przeszłe', test: (r: InstallmentRow) => r.isPast },
-  { id: 'future', label: 'Przyszłe', test: (r: InstallmentRow) => !r.isPast },
-] as const;
-
-export default function AmortizationTable({ schedule, input }: Props) {
+export default function ScheduleView() {
+  const result = useResult();
+  const input = useInput();
   const [showAll, setShowAll] = useState(false);
   const [filter, setFilter] = useState('all');
   const [selectedRow, setSelectedRow] = useState<InstallmentRow | null>(null);
 
-  const activeFilter = filters.find(f => f.id === filter)!;
-  const filtered = schedule.filter(activeFilter.test);
+  const schedule = result?.schedule ?? [];
+
+  const { filtered, filterItems } = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const f of scheduleFilters) counts[f.id] = 0;
+    for (const row of schedule) {
+      for (const f of scheduleFilters) { if (f.test(row)) counts[f.id]++; }
+    }
+    const activeFilter = scheduleFilters.find(f => f.id === filter) ?? scheduleFilters[0];
+    return {
+      filtered: schedule.filter(activeFilter.test),
+      filterItems: scheduleFilters.map(f => ({ id: f.id, label: `${f.label} (${counts[f.id]})` })),
+    };
+  }, [schedule, filter]);
+
   const displayed = showAll ? filtered : filtered.slice(0, PAGE_SIZE);
 
-  const filterItems = useMemo(
-    () => filters.map(f => ({ id: f.id, label: `${f.label} (${schedule.filter(f.test).length})` })),
-    [schedule],
-  );
+  if (!result || !input) return null;
 
   return (
     <Panel className="overflow-hidden">
@@ -66,10 +70,7 @@ export default function AmortizationTable({ schedule, input }: Props) {
                     className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-blue-600 transition-colors cursor-pointer"
                     aria-label={`Szczegóły raty ${row.number}`}
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <InfoIcon className="w-4 h-4" />
                   </button>
                 </td>
               </tr>

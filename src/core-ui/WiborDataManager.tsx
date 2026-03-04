@@ -1,96 +1,20 @@
 import { useState, useMemo } from 'react';
 import { formatPercent } from '../utils/formatters';
-import { Panel } from './ui/Panel';
+import { Panel } from '../components/ui/Panel';
 import type { WiborEntry } from '../utils/calculations';
-
-interface ValidationResult {
-  isValid: boolean;
-  totalEntries: number;
-  dateRange: string;
-  gaps: string[];
-  warnings: string[];
-  errors: string[];
-}
+import {
+  STOOQ_URL,
+  parseStooqCsv,
+  parseJson,
+  validateData,
+  downloadFile,
+} from './wiborDataService';
+import { WIBOR_LAST_ACTUAL } from '../data/wiborRates';
+import type { ValidationResult } from './wiborDataService';
 
 interface Props {
   wiborData: WiborEntry[];
   onDataUpdate: (data: WiborEntry[]) => void;
-}
-
-const STOOQ_URL = 'https://stooq.pl/q/d/l/?s=plopln3m&d1=20050101&d2=20261231&i=m';
-
-function parseStooqCsv(csv: string): WiborEntry[] {
-  return csv.trim().split('\n').slice(1)
-    .map(line => {
-      const parts = line.trim().split(',');
-      if (parts.length < 5) return null;
-      const rate = parseFloat(parts[4].trim());
-      return parts[0].trim() && !isNaN(rate) ? { date: parts[0].trim(), rate } : null;
-    })
-    .filter((e): e is WiborEntry => e !== null)
-    .sort((a, b) => a.date.localeCompare(b.date));
-}
-
-function parseJson(json: string): WiborEntry[] {
-  const data = JSON.parse(json);
-  if (Array.isArray(data)) {
-    return data.filter((e: any) => e.date && typeof e.rate === 'number')
-      .sort((a: WiborEntry, b: WiborEntry) => a.date.localeCompare(b.date));
-  }
-  if (typeof data === 'object') {
-    return Object.entries(data)
-      .map(([key, value]) => ({ date: key.length === 7 ? `${key}-01` : key, rate: value as number }))
-      .sort((a, b) => a.date.localeCompare(b.date));
-  }
-  return [];
-}
-
-function monthDiff(a: Date, b: Date): number {
-  return (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth());
-}
-
-function validateData(entries: WiborEntry[]): ValidationResult {
-  if (entries.length === 0) {
-    return { isValid: false, totalEntries: 0, dateRange: '-', gaps: [], warnings: [], errors: ['Brak danych'] };
-  }
-
-  const errors: string[] = [];
-  const warnings: string[] = [];
-  const gaps: string[] = [];
-
-  for (const entry of entries) {
-    if (entry.rate < 0) errors.push(`Ujemna stawka: ${entry.date} = ${entry.rate}%`);
-    if (entry.rate > 15) warnings.push(`Bardzo wysoka stawka: ${entry.date} = ${entry.rate}%`);
-  }
-
-  for (let i = 1; i < entries.length; i++) {
-    const diff = monthDiff(new Date(entries[i - 1].date), new Date(entries[i].date));
-    if (diff > 2) gaps.push(`Luka: ${entries[i - 1].date} → ${entries[i].date} (${diff} mies.)`);
-  }
-
-  if (gaps.length > 0) warnings.push(`Znaleziono ${gaps.length} luk w danych`);
-
-  const lastDate = entries[entries.length - 1].date;
-  if (monthDiff(new Date(lastDate), new Date()) > 2) {
-    warnings.push(`Dane mogą być nieaktualne - ostatni wpis: ${lastDate}`);
-  }
-
-  return {
-    isValid: errors.length === 0,
-    totalEntries: entries.length,
-    dateRange: `${entries[0].date} → ${lastDate}`,
-    gaps, warnings, errors,
-  };
-}
-
-function downloadFile(content: string, type: string, ext: string) {
-  const blob = new Blob([content], { type });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `wibor3m_${new Date().toISOString().slice(0, 10)}.${ext}`;
-  a.click();
-  URL.revokeObjectURL(url);
 }
 
 function ValidationCard({ v, label }: { v: ValidationResult; label?: string }) {
@@ -139,6 +63,37 @@ function MessageList({ items, color }: { items: string[]; color: 'red' | 'amber'
       {items.map((msg, i) => (
         <p key={i} className={`text-sm ${messageColors[color]} rounded px-3 py-1 mb-1`}>{msg}</p>
       ))}
+    </div>
+  );
+}
+
+function RateTable({ data }: { data: WiborEntry[] }) {
+  return (
+    <div className="overflow-x-auto max-h-80 overflow-y-auto">
+      <table className="w-full text-sm">
+        <thead className="bg-gray-50 sticky top-0">
+          <tr>
+            <th className="px-3 py-2 text-left text-gray-600 font-medium">Data</th>
+            <th className="px-3 py-2 text-right text-gray-600 font-medium">WIBOR 3M</th>
+            <th className="px-3 py-2 text-right text-gray-600 font-medium">Zmiana</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((entry, i) => {
+            const diff = entry.rate - (i > 0 ? data[i - 1].rate : entry.rate);
+            const isForecast = entry.date.slice(0, 7) > WIBOR_LAST_ACTUAL;
+            return (
+              <tr key={entry.date} className={`border-t hover:bg-gray-50 ${isForecast ? 'italic text-gray-400' : ''}`}>
+                <td className="px-3 py-1.5">{entry.date}{isForecast && <span className="ml-1 text-[10px] text-amber-500 not-italic">(prognoza)</span>}</td>
+                <td className="px-3 py-1.5 text-right font-medium">{formatPercent(entry.rate)}</td>
+                <td className={`px-3 py-1.5 text-right text-xs ${diff > 0 ? 'text-red-500' : diff < 0 ? 'text-green-500' : 'text-gray-400'}`}>
+                  {diff !== 0 ? `${diff > 0 ? '+' : ''}${diff.toFixed(2)} pp` : '-'}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }
@@ -206,7 +161,8 @@ export default function WiborDataManager({ wiborData, onDataUpdate }: Props) {
       <Panel className="p-6">
         <h3 className="text-lg font-bold text-gray-800 mb-4">Aktualne dane WIBOR 3M</h3>
         <ValidationCard v={currentValidation} />
-        <div className="flex gap-2">
+        <RateTable data={wiborData} />
+        <div className="flex gap-2 mt-4">
           <button onClick={() => downloadFile(JSON.stringify(wiborData, null, 2), 'application/json', 'json')} className={btnClass}>Eksport JSON</button>
           <button onClick={() => {
             const rows = wiborData.map(e => `${e.date},${e.rate},${e.rate},${e.rate},${e.rate}`).join('\n');
@@ -257,31 +213,7 @@ export default function WiborDataManager({ wiborData, onDataUpdate }: Props) {
             </button>
           </div>
           <ValidationCard v={validation} label="OK - można zastosować" />
-          <div className="overflow-x-auto max-h-80 overflow-y-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 sticky top-0">
-                <tr>
-                  <th className="px-3 py-2 text-left text-gray-600 font-medium">Data</th>
-                  <th className="px-3 py-2 text-right text-gray-600 font-medium">WIBOR 3M</th>
-                  <th className="px-3 py-2 text-right text-gray-600 font-medium">Zmiana</th>
-                </tr>
-              </thead>
-              <tbody>
-                {previewData.map((entry, i) => {
-                  const diff = entry.rate - (i > 0 ? previewData[i - 1].rate : entry.rate);
-                  return (
-                    <tr key={entry.date} className="border-t hover:bg-gray-50">
-                      <td className="px-3 py-1.5 text-gray-800">{entry.date}</td>
-                      <td className="px-3 py-1.5 text-right font-medium text-gray-800">{formatPercent(entry.rate)}</td>
-                      <td className={`px-3 py-1.5 text-right text-xs ${diff > 0 ? 'text-red-500' : diff < 0 ? 'text-green-500' : 'text-gray-400'}`}>
-                        {diff !== 0 ? `${diff > 0 ? '+' : ''}${diff.toFixed(2)} pp` : '-'}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <RateTable data={previewData} />
         </Panel>
       )}
     </div>

@@ -1,3 +1,6 @@
+/** Ostatni miesiąc z potwierdzonymi danymi historycznymi (reszta to prognozy) */
+export const WIBOR_LAST_ACTUAL = '2024-12';
+
 export const WIBOR_3M_RATES: Record<string, number> = {
   '2015-01': 1.65, '2015-02': 1.65, '2015-03': 1.67, '2015-04': 1.67, '2015-05': 1.66, '2015-06': 1.67,
   '2015-07': 1.69, '2015-08': 1.70, '2015-09': 1.72, '2015-10': 1.73, '2015-11': 1.73, '2015-12': 1.73,
@@ -24,19 +27,3 @@ export const WIBOR_3M_RATES: Record<string, number> = {
   '2026-01': 3.93, '2026-02': 3.86,
 };
 
-const sortedKeys = Object.keys(WIBOR_3M_RATES).sort();
-
-export function getWiborRate(date: Date): number {
-  const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-  if (WIBOR_3M_RATES[key] !== undefined) return WIBOR_3M_RATES[key];
-  let lastRate = sortedKeys[0];
-  for (const k of sortedKeys) {
-    if (k <= key) lastRate = k;
-    else break;
-  }
-  return WIBOR_3M_RATES[lastRate];
-}
-
-export function getAvailableWiborDates(): string[] {
-  return sortedKeys;
-}

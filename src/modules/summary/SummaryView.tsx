@@ -1,27 +1,24 @@
 import { useState, useMemo } from 'react';
-import type { CalculationResult } from '../utils/calculations';
-import { formatPLN, formatPercent } from '../utils/formatters';
-import { getSummaryExplanation } from '../utils/explanations/summaryExplanations';
-import { StatCard } from './ui/StatCard';
-import { StepCard } from './ui/ExplanationCard';
-import { Sheet } from './ui/Sheet';
+import { formatPLN } from '../../utils/formatters';
+import { getSummaryExplanation } from '../../utils/explanations/summaryExplanations';
+import { StatCard } from '../../components/ui/StatCard';
+import { StepCard } from '../../components/ui/ExplanationCard';
+import { Sheet } from '../../components/ui/Sheet';
+import { CalculationDisclaimer } from '../../components/ui/CalculationDisclaimer';
+import { useResult } from '../../core/CaseContext';
+import { pctOf } from './summaryHelpers';
 
-interface Props {
-  result: CalculationResult;
-}
-
-function pctOf(part: number, total: number): string {
-  return formatPercent(total > 0 ? (part / total) * 100 : 0, 1);
-}
-
-export default function ResultsSummary({ result }: Props) {
-  const r = result;
+export default function SummaryView() {
+  const result = useResult();
   const [sheetMetric, setSheetMetric] = useState<{ id: string; title: string } | null>(null);
 
   const sheetSteps = useMemo(
-    () => sheetMetric ? getSummaryExplanation(sheetMetric.id, r) : [],
-    [sheetMetric, r],
+    () => sheetMetric && result ? getSummaryExplanation(sheetMetric.id, result) : [],
+    [sheetMetric, result],
   );
+
+  if (!result) return null;
+  const r = result;
 
   const info = (metricId: string, title: string) => () => {
     setSheetMetric({ id: metricId, title });
@@ -82,6 +79,7 @@ export default function ResultsSummary({ result }: Props) {
       </div>
 
       <Sheet open={sheetMetric !== null} onClose={() => setSheetMetric(null)} title={sheetMetric?.title ?? ''}>
+        <CalculationDisclaimer />
         <div className="space-y-4">
           {sheetSteps.map((step, i) => (
             <StepCard key={step.id} step={step} index={i} />

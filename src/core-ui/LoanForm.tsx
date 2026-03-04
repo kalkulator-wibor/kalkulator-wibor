@@ -1,26 +1,31 @@
 import { useState } from 'react';
 import type { LoanInput } from '../utils/calculations';
+import { toDateString } from '../utils/formatters';
 import { LOAN_TEMPLATES } from '../data/loanTemplates';
 import type { LoanTemplate } from '../data/loanTemplates';
-import { Panel } from './ui/Panel';
-import { Field } from './ui/Field';
-
-interface Props {
-  onCalculate: (input: LoanInput) => void;
-}
+import { Panel } from '../components/ui/Panel';
+import { Field } from '../components/ui/Field';
+import { useCases, useInput } from '../core/CaseContext';
 
 const inputClass = "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900";
 
-export default function LoanForm({ onCalculate }: Props) {
+const bankGroups = LOAN_TEMPLATES.reduce<Record<string, LoanTemplate[]>>((acc, tpl) => {
+  (acc[tpl.bank] ??= []).push(tpl);
+  return acc;
+}, {});
+
+export default function LoanForm() {
+  const { updateInput, setActiveTab } = useCases();
+  const savedInput = useInput();
   const [selectedTemplate, setSelectedTemplate] = useState('');
-  const [loanAmount, setLoanAmount] = useState('121462.50');
-  const [margin, setMargin] = useState('2.09');
-  const [loanPeriod, setLoanPeriod] = useState('243');
-  const [startDate, setStartDate] = useState('2015-09-03');
-  const [bridgeMargin, setBridgeMargin] = useState('1.00');
-  const [bridgeEndDate, setBridgeEndDate] = useState('2015-10-15');
-  const [showBridge, setShowBridge] = useState(true);
-  const [paymentDay, setPaymentDay] = useState('30');
+  const [loanAmount, setLoanAmount] = useState(savedInput ? String(savedInput.loanAmount) : '200000');
+  const [margin, setMargin] = useState(savedInput ? savedInput.margin.toFixed(2) : '2.09');
+  const [loanPeriod, setLoanPeriod] = useState(savedInput ? String(savedInput.loanPeriodMonths) : '300');
+  const [startDate, setStartDate] = useState(savedInput ? toDateString(savedInput.startDate) : '');
+  const [bridgeMargin, setBridgeMargin] = useState(savedInput ? savedInput.bridgeMargin.toFixed(2) : '0');
+  const [bridgeEndDate, setBridgeEndDate] = useState(savedInput?.bridgeEndDate ? toDateString(savedInput.bridgeEndDate) : '');
+  const [showBridge, setShowBridge] = useState(savedInput ? savedInput.bridgeMargin > 0 : false);
+  const [paymentDay, setPaymentDay] = useState(savedInput ? String(savedInput.paymentDay) : '30');
   const [templateInfo, setTemplateInfo] = useState<LoanTemplate | null>(null);
 
   const applyTemplate = (templateId: string) => {
@@ -45,7 +50,7 @@ export default function LoanForm({ onCalculate }: Props) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onCalculate({
+    const input: LoanInput = {
       loanAmount: parseFloat(loanAmount.replace(/\s/g, '').replace(',', '.')),
       margin: parseFloat(margin.replace(',', '.')),
       loanPeriodMonths: parseInt(loanPeriod),
@@ -53,13 +58,10 @@ export default function LoanForm({ onCalculate }: Props) {
       bridgeMargin: showBridge ? parseFloat(bridgeMargin.replace(',', '.')) : 0,
       bridgeEndDate: showBridge && bridgeEndDate ? new Date(bridgeEndDate) : null,
       paymentDay: parseInt(paymentDay) || 30,
-    });
+    };
+    updateInput(input);
+    setActiveTab('summary');
   };
-
-  const bankGroups = LOAN_TEMPLATES.reduce<Record<string, LoanTemplate[]>>((acc, tpl) => {
-    (acc[tpl.bank] ??= []).push(tpl);
-    return acc;
-  }, {});
 
   return (
     <Panel as="form" onSubmit={handleSubmit} className="p-6 space-y-5">

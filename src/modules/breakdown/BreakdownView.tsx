@@ -1,10 +1,6 @@
-import type { CalculationResult } from '../utils/calculations';
-import { formatPLN, formatPercent } from '../utils/formatters';
-import { Panel } from './ui/Panel';
-
-interface Props {
-  result: CalculationResult;
-}
+import { formatPLN, formatPercent } from '../../utils/formatters';
+import { Panel } from '../../components/ui/Panel';
+import { useResult } from '../../core/CaseContext';
 
 function BarSegment({ label, value, total, color }: { label: string; value: number; total: number; color: string }) {
   const pct = total > 0 ? (value / total) * 100 : 0;
@@ -37,8 +33,11 @@ function InterestSection({ title, segments, total, border }: {
   );
 }
 
-export default function InterestBreakdown({ result }: Props) {
+export default function BreakdownView() {
+  const result = useResult();
+  if (!result) return null;
   const r = result;
+
   const totalWibor = r.pastInterestWibor + r.futureInterestWibor;
   const totalMargin = r.pastInterestMargin + r.futureInterestMargin;
   const totalInterest = r.pastInterestTotal + r.futureInterestTotal;

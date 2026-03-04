@@ -1,7 +1,8 @@
-import { getWiborRate as getDefaultWiborRate } from '../data/wiborRates';
-import { daysBetween } from './formatters';
+import { daysBetween, toDateString } from './formatters';
 
 export interface WiborEntry { date: string; rate: number; }
+
+export const compareByDate = (a: WiborEntry, b: WiborEntry) => a.date.localeCompare(b.date);
 
 export interface LoanInput {
   loanAmount: number;
@@ -14,10 +15,9 @@ export interface LoanInput {
   wiborData?: WiborEntry[];
 }
 
-function resolveWiborRate(date: Date, wiborData?: WiborEntry[]): number {
-  if (!wiborData || wiborData.length === 0) return getDefaultWiborRate(date);
-  const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-  let bestRate = wiborData[0].rate;
+function resolveWiborRate(date: Date, wiborData: WiborEntry[] = []): number {
+  const dateStr = toDateString(date);
+  let bestRate = wiborData[0]?.rate ?? 0;
   for (const entry of wiborData) {
     if (entry.date <= dateStr) bestRate = entry.rate;
     else break;
@@ -154,41 +154,70 @@ export function calculateLoan(input: LoanInput): CalculationResult {
     prevDate = paymentDate;
   }
 
-  const sum = (arr: number[]) => arr.reduce((a, b) => a + b, 0);
-  const pastRows = schedule.filter(r => r.isPast);
-  const futureRows = schedule.filter(r => !r.isPast);
-  const pastNW = scheduleNoWibor.filter((_, i) => schedule[i].isPast);
-  const futureNW = scheduleNoWibor.filter((_, i) => !schedule[i].isPast);
+  // Single-pass aggregation
+  const agg = {
+    pastTotalPaid: 0, pastPrincipal: 0, pastInterestTotal: 0,
+    pastInterestWibor: 0, pastInterestMargin: 0, pastInterestBridge: 0, pastCount: 0,
+    futureTotalToPay: 0, futurePrincipal: 0, futureInterestTotal: 0,
+    futureInterestWibor: 0, futureInterestMargin: 0, futureCount: 0,
+    pastTotalNW: 0, pastInterestNW: 0, pastPrincipalNW: 0,
+    futureTotalNW: 0, futureInterestNW: 0,
+    currentInstallment: 0, installmentNoWibor: 0,
+  };
 
-  const pastInterestTotal = sum(pastRows.map(r => r.interestTotal));
-  const pastTotalPaid = sum(pastRows.map(r => r.installment));
-  const futureTotalToPay = sum(futureRows.map(r => r.installment));
-  const pastInterestNW = sum(pastNW.map(r => r.interest));
-  const futureTotalNW = sum(futureNW.map(r => r.installment));
+  for (let i = 0; i < schedule.length; i++) {
+    const row = schedule[i];
+    const nw = scheduleNoWibor[i];
+    if (row.isPast) {
+      agg.pastTotalPaid += row.installment;
+      agg.pastPrincipal += row.principal;
+      agg.pastInterestTotal += row.interestTotal;
+      agg.pastInterestWibor += row.interestWibor;
+      agg.pastInterestMargin += row.interestMargin;
+      agg.pastInterestBridge += row.interestBridge;
+      agg.pastCount++;
+      agg.pastTotalNW += nw.installment;
+      agg.pastInterestNW += nw.interest;
+      agg.pastPrincipalNW += nw.principal;
+    } else {
+      if (agg.futureCount === 0) {
+        agg.currentInstallment = row.installment;
+        agg.installmentNoWibor = nw.installment;
+      }
+      agg.futureTotalToPay += row.installment;
+      agg.futurePrincipal += row.principal;
+      agg.futureInterestTotal += row.interestTotal;
+      agg.futureInterestWibor += row.interestWibor;
+      agg.futureInterestMargin += row.interestMargin;
+      agg.futureCount++;
+      agg.futureTotalNW += nw.installment;
+      agg.futureInterestNW += nw.interest;
+    }
+  }
 
   return {
     schedule, scheduleNoWibor,
-    pastTotalPaid,
-    pastPrincipalPaid: sum(pastRows.map(r => r.principal)),
-    pastInterestTotal,
-    pastInterestWibor: sum(pastRows.map(r => r.interestWibor)),
-    pastInterestMargin: sum(pastRows.map(r => r.interestMargin)),
-    pastInterestBridge: sum(pastRows.map(r => r.interestBridge)),
-    pastInstallmentsCount: pastRows.length,
-    futureTotalToPay,
-    futurePrincipalToPay: sum(futureRows.map(r => r.principal)),
-    futureInterestTotal: sum(futureRows.map(r => r.interestTotal)),
-    futureInterestWibor: sum(futureRows.map(r => r.interestWibor)),
-    futureInterestMargin: sum(futureRows.map(r => r.interestMargin)),
-    futureInstallmentsCount: futureRows.length,
-    pastTotalPaidNoWibor: sum(pastNW.map(r => r.installment)),
-    pastInterestNoWibor: pastInterestNW,
-    pastPrincipalNoWibor: sum(pastNW.map(r => r.principal)),
-    futureTotalNoWibor: futureTotalNW,
-    futureInterestNoWibor: sum(futureNW.map(r => r.interest)),
-    overpaidInterest: pastInterestTotal - pastInterestNW,
-    futureSavings: futureTotalToPay - futureTotalNW,
-    currentInstallment: futureRows.length > 0 ? futureRows[0].installment : 0,
-    installmentNoWibor: futureNW.length > 0 ? futureNW[0].installment : 0,
+    pastTotalPaid: agg.pastTotalPaid,
+    pastPrincipalPaid: agg.pastPrincipal,
+    pastInterestTotal: agg.pastInterestTotal,
+    pastInterestWibor: agg.pastInterestWibor,
+    pastInterestMargin: agg.pastInterestMargin,
+    pastInterestBridge: agg.pastInterestBridge,
+    pastInstallmentsCount: agg.pastCount,
+    futureTotalToPay: agg.futureTotalToPay,
+    futurePrincipalToPay: agg.futurePrincipal,
+    futureInterestTotal: agg.futureInterestTotal,
+    futureInterestWibor: agg.futureInterestWibor,
+    futureInterestMargin: agg.futureInterestMargin,
+    futureInstallmentsCount: agg.futureCount,
+    pastTotalPaidNoWibor: agg.pastTotalNW,
+    pastInterestNoWibor: agg.pastInterestNW,
+    pastPrincipalNoWibor: agg.pastPrincipalNW,
+    futureTotalNoWibor: agg.futureTotalNW,
+    futureInterestNoWibor: agg.futureInterestNW,
+    overpaidInterest: agg.pastInterestTotal - agg.pastInterestNW,
+    futureSavings: agg.futureTotalToPay - agg.futureTotalNW,
+    currentInstallment: agg.currentInstallment,
+    installmentNoWibor: agg.installmentNoWibor,
   };
 }

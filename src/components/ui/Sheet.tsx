@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { CloseIcon } from './Icons';
 
 interface SheetProps {
   open: boolean;
@@ -41,9 +42,7 @@ export function Sheet({ open, onClose, title, children, width = 'w-[520px]' }: S
               className="p-1 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
               aria-label="Zamknij"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <CloseIcon className="w-5 h-5" />
             </button>
           </div>
         )}
