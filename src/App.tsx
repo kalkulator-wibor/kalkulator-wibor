@@ -101,7 +101,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
           <div className="flex items-baseline gap-3">
             <h1 className="font-bold tracking-tight">Kalkulator WIBOR</h1>
-            <span className="hidden sm:inline label-caps">Roszczenie do pozwu</span>
+            <span className="hidden sm:inline label-caps">Analiza kredytu</span>
           </div>
           <HeaderIconBar />
         </div>
@@ -117,16 +117,17 @@ export default function App() {
             <div>
               <p className="label-caps mb-2">Kalkulator WIBOR</p>
               <p className="text-[0.8125rem] opacity-55 max-w-md leading-relaxed">
-                Narzędzie do szacowania roszczeń z tytułu odwiborowania kredytu hipotecznego. Wyniki mają charakter poglądowy i nie stanowią porady prawnej.
+                Narzędzie do analizy kredytu hipotecznego z&nbsp;oprocentowaniem zmiennym (WIBOR). Wyniki mają charakter poglądowy i&nbsp;nie zastępują porady prawnej ani finansowej.
               </p>
             </div>
             <div className="text-xs opacity-30 sm:text-right shrink-0">
-              <p>kalkulator-wibor-pozew.pl</p>
+              <p>kalkulator-wibor.pl</p>
               <p className="mt-1">Obliczenia wykonywane lokalnie w przeglądarce</p>
             </div>
           </div>
-          <div className="border-t border-neutral-content/10 mt-6 pt-4">
+          <div className="border-t border-neutral-content/10 mt-6 pt-4 space-y-2">
             <p className="text-xs opacity-20">Wyniki mogą się różnić od rzeczywistych kwot ze względu na zaokrąglenia, daty fixingów WIBOR i indywidualne warunki umowy.</p>
+            <p className="text-xs opacity-20">Serwis nie świadczy usług prawnych. Prezentowane obliczenia pokazują scenariusze hipotetyczne — nie przesądzają o&nbsp;zasadności ani wyniku ewentualnego postępowania. Przed podjęciem działań prawnych skonsultuj swoją sytuację z&nbsp;radcą prawnym lub adwokatem.</p>
           </div>
         </div>
       </footer>

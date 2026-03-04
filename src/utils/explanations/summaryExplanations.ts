@@ -138,13 +138,13 @@ const explanations: Record<string, StepFn> = {
     },
     {
       id: 'overpaid-diff',
-      title: 'Krok 3: Nadpłata',
-      formula: 'Nadpłata = I_fakt - I_bW',
+      title: 'Krok 3: Różnica',
+      formula: 'Różnica = I_fakt - I_bW',
       inputs: [
         { label: 'Odsetki faktyczne', symbol: 'I_fakt', value: r.pastInterestTotal, formatted: formatPLN(r.pastInterestTotal) },
         { label: 'Odsetki bez WIBOR', symbol: 'I_bW', value: r.pastInterestNoWibor, formatted: formatPLN(r.pastInterestNoWibor) },
       ],
-      result: { label: 'Nadpłacone odsetki', symbol: 'Δ', value: r.overpaidInterest, formatted: formatPLN(r.overpaidInterest) },
+      result: { label: 'Różnica w odsetkach', symbol: 'Δ', value: r.overpaidInterest, formatted: formatPLN(r.overpaidInterest) },
       notes: `Kwota jest wyższa niż same "odsetki z WIBOR" (${formatPLN(r.pastInterestWibor)}), ponieważ WIBOR powoduje wolniejszą spłatę kapitału → wyższe saldo → wyższe odsetki od marży. Ta różnica (${formatPLN(r.overpaidInterest - r.pastInterestWibor)}) to koszt pośredni WIBOR.`,
     },
   ],
@@ -184,13 +184,13 @@ const explanations: Record<string, StepFn> = {
   'total-benefit': (r) => [{
     id: 'total-benefit',
     title: 'Łączna korzyść',
-    formula: 'Korzyść = Nadpłata + Oszczędność',
+    formula: 'Korzyść = Różnica + Oszczędność',
     inputs: [
-      { label: 'Nadpłacone odsetki', symbol: 'Nadpłata', value: r.overpaidInterest, formatted: formatPLN(r.overpaidInterest) },
+      { label: 'Różnica w odsetkach', symbol: 'Różnica', value: r.overpaidInterest, formatted: formatPLN(r.overpaidInterest) },
       { label: 'Oszczędność przyszła', symbol: 'Oszcz', value: r.futureSavings, formatted: formatPLN(r.futureSavings) },
     ],
     result: { label: 'Łączna korzyść', symbol: 'K', value: r.overpaidInterest + r.futureSavings, formatted: formatPLN(r.overpaidInterest + r.futureSavings) },
-    notes: 'Suma potencjalnego zwrotu od banku (nadpłata) i przyszłych niższych rat (oszczędność).',
+    notes: 'Suma różnicy w dotychczasowych odsetkach i przyszłych niższych rat w scenariuszu bez WIBOR.',
   }],
 
   'installment-no-wibor': (r) => [{

@@ -66,9 +66,9 @@ export default function CalculatorView() {
                 Klauzule WIBOR<br />w&nbsp;Twoim kredycie
               </h2>
               <div className="mt-6 flex flex-col gap-3 text-[0.9375rem] opacity-70 leading-relaxed">
-                <p className="flex items-center gap-3"><Search className="w-4 h-4 opacity-40 shrink-0" />System analizy klauzul WIBOR w&nbsp;umowach kredytowych</p>
-                <p className="flex items-center gap-3"><FileText className="w-4 h-4 opacity-40 shrink-0" />Przygotowanie dokumentacji procesowej</p>
-                <p className="flex items-center gap-3"><ArrowRight className="w-4 h-4 opacity-40 shrink-0" />Prowadzenie sprawy od wezwania przedsądowego do&nbsp;wyroku</p>
+                <p className="flex items-center gap-3"><Search className="w-4 h-4 opacity-40 shrink-0" />Sprawdź jak wyglądałby Twój kredyt bez&nbsp;WIBOR</p>
+                <p className="flex items-center gap-3"><FileText className="w-4 h-4 opacity-40 shrink-0" />Uporządkuj dokumenty potrzebne do&nbsp;rozmowy z&nbsp;prawnikiem</p>
+                <p className="flex items-center gap-3"><ArrowRight className="w-4 h-4 opacity-40 shrink-0" />Śledź przebieg sprawy krok po&nbsp;kroku</p>
               </div>
               <p className="label-caps mt-10">Wypełnij formularz aby rozpocząć</p>
             </div>
@@ -80,13 +80,13 @@ export default function CalculatorView() {
             <div className="py-8 px-2">
               <p className="label-caps mb-3">Wyrok TSUE</p>
               <h3 className="leading-snug">
-                C-471/24 z&nbsp;12.02.2026 — klauzule WIBOR podlegają kontroli abuzywności
+                C-471/24 z&nbsp;12.02.2026 — sądy mogą badać klauzule WIBOR
               </h3>
               <p className="mt-3 text-[0.8125rem] opacity-55 leading-relaxed max-w-lg">
-                TSUE potwierdził, że klauzule zmiennego oprocentowania z&nbsp;WIBOR mogą być badane pod kątem nieuczciwości (dyrektywa 93/13). Kluczowe jest, czy bank prawidłowo poinformował konsumenta o&nbsp;ryzyku zmiennej stopy — w&nbsp;tym czy dostarczył formularz ESIS z&nbsp;symulacją skrajnego wzrostu rat (dyrektywa 2014/17, umowy od&nbsp;2016&nbsp;r.).
+                Trybunał Sprawiedliwości UE orzekł, że sądy krajowe mogą oceniać, czy zapisy o&nbsp;zmiennym oprocentowaniu (WIBOR&nbsp;+&nbsp;marża) były dla kredytobiorcy wystarczająco jasne i&nbsp;zrozumiałe w&nbsp;momencie podpisywania umowy.
               </p>
               <p className="mt-2 text-[0.75rem] opacity-40 leading-relaxed max-w-lg">
-                Każda umowa wymaga indywidualnej analizy. Sam wskaźnik WIBOR nie został zakwestionowany — ocenie podlega sposób jego zastosowania w&nbsp;umowie i&nbsp;realizacja obowiązków informacyjnych.
+                Każda umowa wymaga indywidualnej oceny prawnej. Sam wskaźnik WIBOR nie został zakwestionowany. To narzędzie pomaga uporządkować dane — nie zastępuje porady prawnika.
               </p>
             </div>
 
@@ -98,20 +98,20 @@ export default function CalculatorView() {
               <p className="label-caps mb-5">Moduły systemu</p>
               <div className="grid grid-cols-2 gap-x-8 gap-y-6">
                 <div>
-                  <p className="text-2xl font-bold tracking-tight">AI Bielik</p>
-                  <p className="text-[0.8125rem] opacity-50 mt-1">analiza umowy, predykcja szans, redakcja pism</p>
+                  <p className="text-2xl font-bold tracking-tight">Asystent</p>
+                  <p className="text-[0.8125rem] opacity-50 mt-1">pomaga zrozumieć zapisy umowy i&nbsp;uporządkować dokumenty</p>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold tracking-tight">Automat</p>
-                  <p className="text-[0.8125rem] opacity-50 mt-1">prowadzenie sprawy od wezwania do&nbsp;wyroku</p>
+                  <p className="text-2xl font-bold tracking-tight">Organizator</p>
+                  <p className="text-[0.8125rem] opacity-50 mt-1">checklista kroków i&nbsp;dokumentów na każdym etapie</p>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold tracking-tight">Pozew</p>
-                  <p className="text-[0.8125rem] opacity-50 mt-1">dane stron, WPS, opłata sądowa, dowody</p>
+                  <p className="text-2xl font-bold tracking-tight">Dokumenty</p>
+                  <p className="text-[0.8125rem] opacity-50 mt-1">dane stron, zestawienia, opłaty sądowe</p>
                 </div>
                 <div>
                   <p className="text-2xl font-bold tracking-tight">Kalkulator</p>
-                  <p className="text-[0.8125rem] opacity-50 mt-1">nadpłacone odsetki, harmonogram, porównanie</p>
+                  <p className="text-[0.8125rem] opacity-50 mt-1">porównanie rat z&nbsp;WIBOR i&nbsp;bez, harmonogram</p>
                 </div>
               </div>
             </div>

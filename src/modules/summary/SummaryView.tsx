@@ -105,9 +105,9 @@ export default function SummaryView() {
       <div className="divider"></div>
 
       <section>
-        <h3 className="font-bold text-lg mb-3 text-success">Potencjalne roszczenia (eliminacja WIBOR)</h3>
+        <h3 className="font-bold text-lg mb-3 text-success">Scenariusz: kredyt bez WIBOR</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <Stat title="Nadpłacone odsetki" value={formatPLN(r.overpaidInterest)} subtitle="Nadpłata wynikająca z naliczania WIBOR" onInfo={info('overpaid-interest', 'Nadpłacone odsetki')} />
+          <Stat title="Różnica w odsetkach" value={formatPLN(r.overpaidInterest)} subtitle="Ile więcej zapłacono z WIBOR niż bez" onInfo={info('overpaid-interest', 'Różnica w odsetkach')} />
           <Stat title="Oszczędność na przyszłość" value={formatPLN(r.futureSavings)} subtitle="Niższe raty do końca umowy" onInfo={info('future-savings', 'Oszczędność na przyszłość')} />
           <Stat title="Łączna korzyść" value={formatPLN(r.overpaidInterest + r.futureSavings)} subtitle="Nadpłata + oszczędność" onInfo={info('total-benefit', 'Łączna korzyść')} />
           <Stat title="Rata bez WIBOR" value={formatPLN(r.installmentNoWibor)} subtitle={`Oszczędność: ${formatPLN(r.currentInstallment - r.installmentNoWibor)}/mies.`} onInfo={info('installment-no-wibor', 'Rata bez WIBOR')} />

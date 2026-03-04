@@ -92,7 +92,7 @@ function LawsuitSection() {
             <div className="stat py-3 px-4">
               <div className="stat-title text-xs">Wartość przedmiotu sporu (WPS)</div>
               <div className="stat-value text-lg">{formatPLN(summary.wps)}</div>
-              <div className="stat-desc">Nadpłacone odsetki z tytułu WIBOR</div>
+              <div className="stat-desc">Różnica w odsetkach (scenariusz bez WIBOR)</div>
             </div>
             <div className="stat py-3 px-4">
               <div className="stat-title text-xs">Opłata sądowa (5% WPS)</div>
@@ -160,7 +160,7 @@ export default function CasesPanel() {
             <div className="join w-full">
               <input type="text" value={saveName} onChange={e => setSaveName(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleSave()}
-                placeholder="Nazwa sprawy (np. Kowalski - Santander 2015)"
+                placeholder="Nazwa sprawy (np. Kredyt 2015)"
                 className="input input-bordered join-item flex-1" />
               <button onClick={handleSave} disabled={!saveName.trim()} className="btn btn-primary join-item">Zapisz</button>
             </div>
