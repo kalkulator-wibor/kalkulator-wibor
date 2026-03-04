@@ -53,12 +53,41 @@ export default function CalculatorView() {
             <activeTabModule.Component />
           </div>
         ) : (
-          <div className="card bg-base-100 shadow-xl">
-            <div className="card-body items-center text-center py-12">
-              <h2 className="card-title">Scenariusz: Odwiborowanie</h2>
-              <p className="opacity-60 max-w-md">
-                Symulacja usunięcia WIBOR z umowy kredytowej. Wypełnij formularz po lewej stronie, aby porównać raty z WIBOR i bez WIBOR (tylko marża banku).
-              </p>
+          <div className="space-y-4">
+            <div className="card bg-base-100 shadow-xl">
+              <div className="card-body py-8">
+                <h2 className="text-2xl font-bold">Oblicz ile przepłacasz na kredycie z WIBOR</h2>
+                <ul className="mt-4 space-y-3 text-base">
+                  <li className="flex gap-3 items-start"><span className="text-success text-lg">✓</span> Porównaj ratę z WIBOR i bez WIBOR</li>
+                  <li className="flex gap-3 items-start"><span className="text-success text-lg">✓</span> Oblicz kwotę roszczenia do pozwu bankowego</li>
+                  <li className="flex gap-3 items-start"><span className="text-success text-lg">✓</span> Zobacz ile nadpłaciłeś od początku kredytu</li>
+                </ul>
+                <p className="mt-4 text-sm opacity-60">Wypełnij formularz aby zobaczyć wynik</p>
+              </div>
+            </div>
+
+            <div className="card bg-base-100 shadow-xl">
+              <div className="card-body py-6">
+                <h3 className="font-bold text-lg">Wyrok TSUE C-471/24 z 12.02.2026</h3>
+                <p className="text-sm opacity-80 mt-1">Trybunał potwierdził — klauzule WIBOR + marża mogą być badane pod kątem nieuczciwości. Banki miały obowiązek przedstawić symulację skrajnego wzrostu stóp. Większość tego nie zrobiła.</p>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  <span className="badge badge-outline">odwiborowanie</span>
+                  <span className="badge badge-outline">pozew o WIBOR</span>
+                  <span className="badge badge-outline">abuzywność klauzuli</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="card bg-base-100 shadow-xl">
+              <div className="card-body py-6">
+                <h3 className="font-bold text-lg">Co możesz zyskać?</h3>
+                <div className="grid grid-cols-2 gap-3 mt-2 text-sm">
+                  <div className="flex gap-2 items-start"><span className="text-primary font-bold">↓</span> Rata niższa nawet o 30–50%</div>
+                  <div className="flex gap-2 items-start"><span className="text-primary font-bold">↻</span> Zwrot nadpłaconych odsetek</div>
+                  <div className="flex gap-2 items-start"><span className="text-primary font-bold">↓</span> Niższe saldo zadłużenia</div>
+                  <div className="flex gap-2 items-start"><span className="text-primary font-bold">✓</span> Przewidywalna rata na przyszłość</div>
+                </div>
+              </div>
             </div>
           </div>
         )}
