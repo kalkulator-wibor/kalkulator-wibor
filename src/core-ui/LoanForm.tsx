@@ -142,9 +142,6 @@ export default function LoanForm() {
 
         <button type="submit" className="btn btn-primary w-full text-lg">Oblicz</button>
 
-        <p className="text-xs text-center opacity-50">
-          WIBOR 3M jest pobierany automatycznie z tabeli historycznych stawek. Obliczenia mają charakter szacunkowy/poglądowy.
-        </p>
       </div>
     </form>
   );

@@ -13,11 +13,16 @@ function WiborSourceBadge() {
 
   return (
     <button onClick={() => openSheetModule('wiborData')}
-      className={`mt-3 w-full text-left cursor-pointer alert text-xs ${isDefault ? 'alert-warning' : 'alert-success'}`}>
-      <div>
-        <div>Dane WIBOR: {isDefault ? 'wbudowane (przybliżone)' : 'zaimportowane'} · {wiborData.length} wpisów · {range}</div>
+      className="mt-4 w-full text-left cursor-pointer group">
+      <div className="px-1 py-3 border-t border-base-300">
+        <div className="flex items-baseline justify-between">
+          <p className="label-caps !opacity-30 group-hover:!opacity-60 transition-opacity">Dane WIBOR</p>
+          <p className="text-[0.6875rem] opacity-30 group-hover:opacity-60 transition-opacity tabular-nums">{wiborData.length} wpisów · {range}</p>
+        </div>
         {isDefault && (
-          <div className="mt-1">Zawiera prognozy od {WIBOR_LAST_ACTUAL.replace('-', '/')}. <span className="underline font-medium">Zaimportuj dokładne dane</span></div>
+          <p className="text-[0.75rem] opacity-40 mt-1.5">
+            Wbudowane (przybliżone) · prognozy od {WIBOR_LAST_ACTUAL.replace('-', '/')} · <span className="underline group-hover:opacity-80">importuj dokładne</span>
+          </p>
         )}
       </div>
     </button>
