@@ -1,12 +1,12 @@
 import type { AppModule } from '../types';
-import { CalculatorIcon } from '../../components/ui/Icons';
+import { Calculator } from 'lucide-react';
 import CalculatorView from './CalculatorView';
 
 const calculator: AppModule = {
   id: 'calculator',
   label: 'Odwiborowanie',
   description: 'Usunięcie WIBOR z umowy, kredyt oparty wyłącznie o marżę banku',
-  icon: CalculatorIcon,
+  icon: Calculator,
   type: 'page',
   Component: CalculatorView,
   alwaysEnabled: true,

@@ -1,15 +1,14 @@
 import type { AppModule } from '../types';
-import { PercentIcon } from '../../components/ui/Icons';
-import { Panel } from '../../components/ui/Panel';
+import { Percent } from 'lucide-react';
 
 function ZeroPercentView() {
   return (
-    <Panel className="p-12 text-center max-w-2xl mx-auto">
-      <h2 className="text-xl font-bold text-gray-800 mb-2">Scenariusz: Kredyt 0%</h2>
-      <p className="text-gray-500">
-        Symulacja usunięcia zarówno WIBOR jak i marży z umowy kredytowej. Kredytobiorca spłaca wyłącznie kapitał bez jakichkolwiek odsetek.
-      </p>
-    </Panel>
+    <div className="card bg-base-100 shadow-xl max-w-2xl mx-auto">
+      <div className="card-body items-center text-center py-12">
+        <h2 className="card-title">Scenariusz: Kredyt 0%</h2>
+        <p className="opacity-60">Symulacja usunięcia zarówno WIBOR jak i marży z umowy kredytowej. Kredytobiorca spłaca wyłącznie kapitał bez jakichkolwiek odsetek.</p>
+      </div>
+    </div>
   );
 }
 
@@ -17,7 +16,7 @@ const zeroPercent: AppModule = {
   id: 'zeroPercent',
   label: 'Kredyt 0%',
   description: 'Usunięcie WIBOR i marży — spłata wyłącznie kapitału',
-  icon: PercentIcon,
+  icon: Percent,
   type: 'page',
   Component: ZeroPercentView,
   comingSoon: true,

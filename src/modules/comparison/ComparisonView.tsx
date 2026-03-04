@@ -1,25 +1,16 @@
 import { formatPLN } from '../../utils/formatters';
-import { Panel } from '../../components/ui/Panel';
 import { useResult } from '../../core/CaseContext';
 
 function Row({ label, withWibor, withoutWibor, highlight }: { label: string; withWibor: number; withoutWibor: number; highlight?: boolean }) {
   const diff = withWibor - withoutWibor;
   return (
-    <tr className={highlight ? 'bg-green-50 font-bold' : 'hover:bg-gray-50'}>
-      <td className="px-4 py-3 text-gray-700">{label}</td>
-      <td className="px-4 py-3 text-right text-gray-800">{formatPLN(withWibor)}</td>
-      <td className="px-4 py-3 text-right text-gray-800">{formatPLN(withoutWibor)}</td>
-      <td className={`px-4 py-3 text-right font-medium ${diff > 0 ? 'text-green-600' : 'text-gray-500'}`}>
-        {diff > 0.01 ? `+${formatPLN(diff)}` : '-'}
+    <tr className={highlight ? 'bg-success/10 font-bold' : 'hover'}>
+      <td>{label}</td>
+      <td className="text-right">{formatPLN(withWibor)}</td>
+      <td className="text-right">{formatPLN(withoutWibor)}</td>
+      <td className="text-right">
+        {diff > 0.01 ? <span className="badge badge-success badge-sm">+{formatPLN(diff)}</span> : <span className="opacity-40">-</span>}
       </td>
-    </tr>
-  );
-}
-
-function SectionHeader({ children }: { children: string }) {
-  return (
-    <tr className="bg-gray-50/50">
-      <td colSpan={4} className="px-4 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider">{children}</td>
     </tr>
   );
 }
@@ -46,24 +37,26 @@ export default function ComparisonView() {
   ];
 
   return (
-    <Panel className="overflow-hidden">
-      <div className="p-4 border-b">
-        <h3 className="text-lg font-bold text-gray-800">Porównanie: z WIBOR vs bez WIBOR</h3>
-        <p className="text-sm text-gray-500 mt-1">Scenariusz eliminacji wskaźnika WIBOR - kredyt oprocentowany wyłącznie marżą banku</p>
+    <div className="card bg-base-100 shadow-xl overflow-hidden">
+      <div className="card-body pb-0">
+        <h3 className="card-title">Porównanie: z WIBOR vs bez WIBOR</h3>
+        <p className="text-sm opacity-60">Scenariusz eliminacji wskaźnika WIBOR - kredyt oprocentowany wyłącznie marżą banku</p>
       </div>
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50">
+        <table className="table">
+          <thead>
             <tr>
-              <th className="px-4 py-3 text-left text-gray-600 font-medium">Pozycja</th>
-              <th className="px-4 py-3 text-right text-gray-600 font-medium">Z WIBOR</th>
-              <th className="px-4 py-3 text-right text-gray-600 font-medium">Bez WIBOR</th>
-              <th className="px-4 py-3 text-right text-green-600 font-medium">Korzyść</th>
+              <th>Pozycja</th>
+              <th className="text-right">Z WIBOR</th>
+              <th className="text-right">Bez WIBOR</th>
+              <th className="text-right text-success">Korzyść</th>
             </tr>
           </thead>
-          <tbody className="divide-y">
+          <tbody>
             {rows.map(({ section, items }) => [
-              <SectionHeader key={section}>{section}</SectionHeader>,
+              <tr key={section} className="bg-base-200/50">
+                <td colSpan={4} className="text-xs font-bold uppercase tracking-wider opacity-60">{section}</td>
+              </tr>,
               ...items.map(({ label, w, nw, hl }) => (
                 <Row key={label} label={label} withWibor={w} withoutWibor={nw} highlight={hl} />
               )),
@@ -71,6 +64,6 @@ export default function ComparisonView() {
           </tbody>
         </table>
       </div>
-    </Panel>
+    </div>
   );
 }

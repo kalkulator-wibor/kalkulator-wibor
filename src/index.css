@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "daisyui";
 
 @keyframes slide-in-right {
   from { transform: translateX(100%); }

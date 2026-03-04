@@ -1,12 +1,12 @@
 import type { AppModule } from '../types';
-import { DocumentIcon } from '../../components/ui/Icons';
+import { FolderOpen } from 'lucide-react';
 import CasesPanel from './CasesPanel';
 
 const cases: AppModule = {
   id: 'cases',
   label: 'Sprawy',
   description: 'Zarządzanie sprawami klientów',
-  icon: DocumentIcon,
+  icon: FolderOpen,
   type: 'sheet',
   Component: CasesPanel,
 };

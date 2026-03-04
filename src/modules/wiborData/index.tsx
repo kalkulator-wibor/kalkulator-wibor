@@ -1,5 +1,5 @@
 import type { AppModule } from '../types';
-import { InfoIcon } from '../../components/ui/Icons';
+import { Database } from 'lucide-react';
 import WiborDataManager from '../../core-ui/WiborDataManager';
 import { useCases } from '../../core/CaseContext';
 
@@ -12,7 +12,7 @@ const wiborData: AppModule = {
   id: 'wiborData',
   label: 'Dane WIBOR',
   description: 'Podgląd, import i eksport stawek WIBOR 3M',
-  icon: InfoIcon,
+  icon: Database,
   type: 'sheet',
   Component: WiborDataPanel,
   alwaysEnabled: true,
