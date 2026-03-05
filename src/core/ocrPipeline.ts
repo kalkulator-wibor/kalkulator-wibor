@@ -1,3 +1,13 @@
+// Polyfill for Map.getOrInsertComputed (needed if old pdfjs cached by browser)
+if (typeof (Map.prototype as any).getOrInsertComputed !== 'function') {
+  (Map.prototype as any).getOrInsertComputed = function <K, V>(key: K, cb: (key: K) => V): V {
+    if (this.has(key)) return this.get(key)!;
+    const val = cb(key);
+    this.set(key, val);
+    return val;
+  };
+}
+
 import * as pdfjsLib from 'pdfjs-dist';
 import Tesseract from 'tesseract.js';
 import { db } from './db';
