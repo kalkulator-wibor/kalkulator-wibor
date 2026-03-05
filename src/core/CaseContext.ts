@@ -3,13 +3,14 @@ import { create } from 'zustand';
 import { calculateLoan } from '../utils/calculations';
 import type { CalculationResult, LoanInput, WiborEntry } from '../utils/calculations';
 import { getDefaultWiborEntries } from '../data/defaults';
-import type { Case, WiborDataset, LawsuitData } from './types';
+import type { Case, CaseFile, WiborDataset, LawsuitData } from './types';
 import { toDateString } from '../utils/formatters';
 import { toLoanInput, toStoredInput } from './serialization';
 import type { Bank, LoanTemplate } from '../data/loanTemplates';
 import { loadRemoteData } from '../data/dataService';
 import * as caseStore from './caseStore';
 import * as wiborStore from './wiborStore';
+import * as fileStore from './fileStore';
 
 const DEFAULT_APP_MODULES = ['calculator'];
 
@@ -39,6 +40,7 @@ interface CaseStore {
   wiborDatasetId: string | null;
   activeTab: string;
   enabledAppModules: string[];
+  caseFiles: CaseFile[];
   openSheet: string | null;
   ready: boolean;
 
@@ -56,16 +58,20 @@ interface CaseStore {
   openSheetModule: (id: string) => void;
   closeSheet: () => void;
   updateLawsuit: (patch: Partial<LawsuitData>) => void;
+  uploadEvidence: (key: string, file: File) => Promise<void>;
+  deleteEvidence: (key: string) => Promise<void>;
   activeTemplateId: string | null;
   applyTemplate: (id: string) => void;
 }
 
 async function doLoadCase(c: Case, datasets?: WiborDataset[]) {
+  const caseFiles = await fileStore.getFilesForCase(c.id);
   const patch: Partial<CaseStore> = {
     activeCaseId: c.id,
     activeInput: toLoanInput(c.input),
     activeTab: 'summary',
     activeTemplateId: c.templateId ?? null,
+    caseFiles,
   };
 
   if (c.wiborDatasetId) {
@@ -98,6 +104,7 @@ export const useCases = create<CaseStore>((set, get) => ({
   wiborDatasetId: null,
   activeTab: 'summary',
   enabledAppModules: loadEnabledAppModules(),
+  caseFiles: [],
   openSheet: null,
   ready: false,
 
@@ -130,7 +137,7 @@ export const useCases = create<CaseStore>((set, get) => ({
   },
 
   newCase: () => {
-    set({ activeCaseId: null, activeInput: null, activeTemplateId: null });
+    set({ activeCaseId: null, activeInput: null, activeTemplateId: null, caseFiles: [] });
   },
 
   loadCase: async (id) => {
@@ -140,10 +147,11 @@ export const useCases = create<CaseStore>((set, get) => ({
 
   deleteCase: async (id) => {
     await caseStore.deleteCase(id);
+    await fileStore.deleteAllCaseFiles(id);
     const { activeCaseId } = get();
     set(s => ({
       cases: s.cases.filter(c => c.id !== id),
-      ...(activeCaseId === id ? { activeCaseId: null, activeInput: null, activeTemplateId: null, wiborData: getDefaultWiborEntries(), wiborDatasetId: null } : {}),
+      ...(activeCaseId === id ? { activeCaseId: null, activeInput: null, activeTemplateId: null, wiborData: getDefaultWiborEntries(), wiborDatasetId: null, caseFiles: [] } : {}),
     }));
   },
 
@@ -200,6 +208,18 @@ export const useCases = create<CaseStore>((set, get) => ({
     const lawsuit = { ...c.lawsuit, ...patch };
     updateCaseAndSave(activeCaseId, { lawsuit, updatedAt: new Date().toISOString() });
   },
+  uploadEvidence: async (key, file) => {
+    const { activeCaseId } = get();
+    if (!activeCaseId) return;
+    const meta = await fileStore.uploadFile(activeCaseId, key, file);
+    set(s => ({ caseFiles: [...s.caseFiles.filter(f => f.evidenceKey !== key), meta] }));
+  },
+  deleteEvidence: async (key) => {
+    const { activeCaseId } = get();
+    if (!activeCaseId) return;
+    await fileStore.deleteFile(activeCaseId, key);
+    set(s => ({ caseFiles: s.caseFiles.filter(f => f.evidenceKey !== key) }));
+  },
   openSheetModule: (id) => set({ openSheet: id }),
   closeSheet: () => set({ openSheet: null }),
   activeTemplateId: null,
@@ -240,6 +260,10 @@ export function getBank(bankId: string): Bank | undefined {
 
 export function getTemplate(templateId: string): LoanTemplate | undefined {
   return useCases.getState().templates.find(t => t.id === templateId);
+}
+
+export function useCaseFiles(): CaseFile[] {
+  return useCases(s => s.caseFiles);
 }
 
 export function useWiborSource(): 'default' | 'custom' {

@@ -40,7 +40,6 @@ export function createNewCase(name: string): Case {
       plaintiff: { name: '', address: '', pesel: '' },
       courtName: '',
       demandDate: null,
-      evidenceChecklist: {},
     },
   };
 }

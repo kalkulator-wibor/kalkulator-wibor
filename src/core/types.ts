@@ -20,7 +20,16 @@ export interface LawsuitData {
   plaintiff: PlaintiffData;
   courtName: string;
   demandDate: string | null;
-  evidenceChecklist: Record<string, boolean>;
+}
+
+export interface CaseFile {
+  id: string;          // `${caseId}/${evidenceKey}`
+  caseId: string;
+  evidenceKey: string; // key from EVIDENCE_ITEMS
+  fileName: string;
+  size: number;
+  mimeType: string;
+  uploadedAt: string;
 }
 
 export const EVIDENCE_ITEMS: Record<string, string> = {
