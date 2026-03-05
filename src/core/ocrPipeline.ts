@@ -59,7 +59,7 @@ export async function extractTextFromPdf(
     onProgress?.({ page: i, totalPages, method: 'textLayer', status: 'extracting' });
     const textLayerResult = await extractTextLayer(pdf, i);
 
-    if (textLayerResult.length >= MIN_TEXT_LENGTH) {
+    if (textLayerResult.replace(/\s/g, '').length >= MIN_TEXT_LENGTH) {
       pages.push({ pageNum: i, text: textLayerResult, method: 'textLayer' });
       onProgress?.({ page: i, totalPages, method: 'textLayer', status: 'done' });
       continue;
