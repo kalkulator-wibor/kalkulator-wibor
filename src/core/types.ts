@@ -53,6 +53,21 @@ export interface Case {
   lawsuit: LawsuitData;
 }
 
+export interface PageText {
+  pageNum: number;
+  text: string;
+  method: 'textLayer' | 'ocr';
+  confidence?: number;
+}
+
+export interface DocumentText {
+  id: string;           // `${caseId}/${evidenceKey}`
+  caseId: string;
+  evidenceKey: string;
+  pages: PageText[];
+  extractedAt: string;
+}
+
 export interface WiborDataset {
   id: string;
   name: string;

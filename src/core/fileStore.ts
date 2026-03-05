@@ -1,5 +1,6 @@
 import { db } from './db';
 import type { CaseFile } from './types';
+import { deleteDocumentText, deleteAllDocumentTexts } from './ocrPipeline';
 
 async function getCaseDir(caseId: string): Promise<FileSystemDirectoryHandle> {
   const root = await navigator.storage.getDirectory();
@@ -33,6 +34,7 @@ export async function deleteFile(caseId: string, evidenceKey: string): Promise<v
     await dir.removeEntry(evidenceKey);
   } catch {}
   await db.caseFiles.delete(`${caseId}/${evidenceKey}`);
+  await deleteDocumentText(caseId, evidenceKey);
 }
 
 export async function openFile(caseId: string, evidenceKey: string, fileName: string): Promise<void> {
@@ -51,6 +53,16 @@ export async function openFile(caseId: string, evidenceKey: string, fileName: st
   } catch {}
 }
 
+export async function getFile(caseId: string, evidenceKey: string): Promise<File | null> {
+  try {
+    const dir = await getCaseDir(caseId);
+    const handle = await dir.getFileHandle(evidenceKey);
+    return await handle.getFile();
+  } catch {
+    return null;
+  }
+}
+
 export async function getFilesForCase(caseId: string): Promise<CaseFile[]> {
   return db.caseFiles.where('caseId').equals(caseId).toArray();
 }
@@ -62,4 +74,5 @@ export async function deleteAllCaseFiles(caseId: string): Promise<void> {
     await casesDir.removeEntry(caseId, { recursive: true });
   } catch {}
   await db.caseFiles.where('caseId').equals(caseId).delete();
+  await deleteAllDocumentTexts(caseId);
 }

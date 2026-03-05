@@ -1,7 +1,9 @@
 import { useState, useRef } from 'react';
-import { Pencil, Trash2, Upload, Eye, X } from 'lucide-react';
+import { Pencil, Trash2, Upload, Eye, X, FileSearch } from 'lucide-react';
 import { useCases, useActiveCase, useLawsuitSummary, useResult, useCaseFiles, useActiveBankInfo } from '../../core/CaseContext';
-import { openFile } from '../../core/fileStore';
+import { openFile, getFile } from '../../core/fileStore';
+import { extractTextFromPdf, getDocumentText } from '../../core/ocrPipeline';
+import type { ExtractionProgress } from '../../core/ocrPipeline';
 import { formatPLN } from '../../utils/formatters';
 import { EVIDENCE_ITEMS } from '../../core/types';
 import type { PlaintiffData } from '../../core/types';
@@ -13,15 +15,29 @@ function formatSize(bytes: number): string {
 }
 
 function EvidenceRow({ evidenceKey, label }: { evidenceKey: string; label: string }) {
-  const { uploadEvidence, deleteEvidence, activeCaseId } = useCases();
+  const { uploadEvidence, deleteEvidence, activeCaseId, openSheetModule } = useCases();
   const caseFiles = useCaseFiles();
   const inputRef = useRef<HTMLInputElement>(null);
   const file = caseFiles.find(f => f.evidenceKey === evidenceKey);
+  const [extracting, setExtracting] = useState(false);
+  const [progress, setProgress] = useState<ExtractionProgress | null>(null);
+  const [hasText, setHasText] = useState(false);
+
+  const isPdf = file?.mimeType === 'application/pdf';
+  const canAnalyze = evidenceKey === 'contract' && isPdf;
+
+  // Check if text already extracted
+  useState(() => {
+    if (activeCaseId && file) {
+      getDocumentText(activeCaseId, evidenceKey).then(dt => setHasText(!!dt));
+    }
+  });
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (f) await uploadEvidence(evidenceKey, f);
     if (inputRef.current) inputRef.current.value = '';
+    setHasText(false);
   };
 
   const handlePreview = async () => {
@@ -29,26 +45,63 @@ function EvidenceRow({ evidenceKey, label }: { evidenceKey: string; label: strin
     await openFile(activeCaseId, evidenceKey, file.fileName);
   };
 
+  const handleExtract = async () => {
+    if (!activeCaseId || !file) return;
+    const rawFile = await getFile(activeCaseId, evidenceKey);
+    if (!rawFile) return;
+    setExtracting(true);
+    setProgress(null);
+    try {
+      await extractTextFromPdf(rawFile, activeCaseId, evidenceKey, setProgress);
+      setHasText(true);
+      openSheetModule('documentAnalysis');
+    } finally {
+      setExtracting(false);
+      setProgress(null);
+    }
+  };
+
   return (
-    <div className="flex items-center gap-2">
-      <input type="checkbox" className="checkbox checkbox-sm" checked={!!file} readOnly />
-      <div className="flex-1 min-w-0">
-        <span className="text-sm">{label}</span>
-        {file && (
-          <span className="text-xs opacity-40 ml-2 truncate">{file.fileName} ({formatSize(file.size)})</span>
-        )}
-      </div>
-      {file ? (
-        <div className="flex gap-1 shrink-0">
-          <button onClick={handlePreview} className="btn btn-ghost btn-xs btn-circle" title="Podgląd"><Eye className="w-3.5 h-3.5" /></button>
-          <button onClick={() => deleteEvidence(evidenceKey)} className="btn btn-ghost btn-xs btn-circle hover:text-error" title="Usuń"><X className="w-3.5 h-3.5" /></button>
+    <div className="space-y-1">
+      <div className="flex items-center gap-2">
+        <input type="checkbox" className="checkbox checkbox-sm" checked={!!file} readOnly />
+        <div className="flex-1 min-w-0">
+          <span className="text-sm">{label}</span>
+          {file && (
+            <span className="text-xs opacity-40 ml-2 truncate">{file.fileName} ({formatSize(file.size)})</span>
+          )}
         </div>
-      ) : (
-        <button onClick={() => inputRef.current?.click()} className="btn btn-ghost btn-xs shrink-0 gap-1">
-          <Upload className="w-3.5 h-3.5" />Dodaj
-        </button>
+        {file ? (
+          <div className="flex gap-1 shrink-0">
+            {canAnalyze && (
+              <button
+                onClick={hasText ? () => openSheetModule('documentAnalysis') : handleExtract}
+                disabled={extracting}
+                className={`btn btn-ghost btn-xs ${hasText ? 'text-success' : 'text-primary'}`}
+                title={hasText ? 'Zobacz analizę' : 'Analizuj PDF'}
+              >
+                <FileSearch className="w-3.5 h-3.5" />
+                <span className="text-[10px]">{hasText ? 'Analiza' : 'Analizuj'}</span>
+              </button>
+            )}
+            <button onClick={handlePreview} className="btn btn-ghost btn-xs btn-circle" title="Podgląd"><Eye className="w-3.5 h-3.5" /></button>
+            <button onClick={() => deleteEvidence(evidenceKey)} className="btn btn-ghost btn-xs btn-circle hover:text-error" title="Usuń"><X className="w-3.5 h-3.5" /></button>
+          </div>
+        ) : (
+          <button onClick={() => inputRef.current?.click()} className="btn btn-ghost btn-xs shrink-0 gap-1">
+            <Upload className="w-3.5 h-3.5" />Dodaj
+          </button>
+        )}
+        <input ref={inputRef} type="file" className="hidden" onChange={handleFile} />
+      </div>
+      {extracting && progress && (
+        <div className="ml-7">
+          <progress className="progress progress-primary w-full h-1.5" value={progress.page} max={progress.totalPages} />
+          <p className="text-[10px] opacity-50 mt-0.5">
+            Strona {progress.page}/{progress.totalPages} ({progress.method === 'ocr' ? 'OCR' : 'tekst'})
+          </p>
+        </div>
       )}
-      <input ref={inputRef} type="file" className="hidden" onChange={handleFile} />
     </div>
   );
 }
