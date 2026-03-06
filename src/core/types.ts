@@ -68,6 +68,16 @@ export interface DocumentText {
   extractedAt: string;
 }
 
+export interface DocumentChunk {
+  id: string;            // `${caseId}/${evidenceKey}/${chunkIndex}`
+  documentId: string;    // `${caseId}/${evidenceKey}`
+  caseId: string;
+  chunkIndex: number;
+  text: string;
+  pageNum?: number;
+  vector: number[];
+}
+
 export interface WiborDataset {
   id: string;
   name: string;

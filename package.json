@@ -11,6 +11,8 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@huggingface/transformers": "^3.8.1",
+    "@wllama/wllama": "^2.3.7",
     "dexie": "^4.3.0",
     "lucide-react": "^0.577.0",
     "pdfjs-dist": "^4.10.38",

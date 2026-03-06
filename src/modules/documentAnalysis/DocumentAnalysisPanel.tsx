@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FileText, Copy, CheckCircle } from 'lucide-react';
+import { FileText, Copy, CheckCircle, Bot } from 'lucide-react';
 import { useCases, useCaseFiles } from '../../core/CaseContext';
 import { getDocumentText, getFullText } from '../../core/ocrPipeline';
 import type { DocumentText, PageText } from '../../core/types';
@@ -38,6 +38,7 @@ function PageCard({ page }: { page: PageText }) {
 
 export default function DocumentAnalysisPanel() {
   const activeCaseId = useCases(s => s.activeCaseId);
+  const openSheetModule = useCases(s => s.openSheetModule);
   const caseFiles = useCaseFiles();
   const contractFile = caseFiles.find(f => f.evidenceKey === 'contract');
   const [doc, setDoc] = useState<DocumentText | null>(null);
@@ -94,6 +95,10 @@ export default function DocumentAnalysisPanel() {
           <button onClick={handleCopy} className="btn btn-sm btn-outline gap-1">
             {copied ? <CheckCircle className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
             {copied ? 'Skopiowano' : 'Kopiuj cały tekst'}
+          </button>
+          <button onClick={() => openSheetModule('localLLM')} className="btn btn-sm btn-primary gap-1">
+            <Bot className="w-3.5 h-3.5" />
+            Analizuj z Bielik AI
           </button>
         </div>
       </div>

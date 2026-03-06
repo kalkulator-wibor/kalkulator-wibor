@@ -11,6 +11,7 @@ import cases from './cases';
 import wiborData from './wiborData';
 import templates from './templates';
 import documentAnalysis from './documentAnalysis';
+import localLLM from './localLLM';
 
 export const tabModules: TabModule[] = [summary, breakdown, comparison, schedule, lawsuit];
-export const appModules: AppModule[] = [calculator, zeroPercent, invalidation, cases, wiborData, templates, documentAnalysis];
+export const appModules: AppModule[] = [calculator, zeroPercent, invalidation, cases, wiborData, templates, documentAnalysis, localLLM];
